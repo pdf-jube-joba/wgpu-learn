@@ -131,9 +131,7 @@ async fn run() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    let output_dir = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("examples")
-        .join("NN_and_raytracing");
+    let output_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
     save_buffer(
         &gpu,
         &buffers.weights1,

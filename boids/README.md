@@ -5,7 +5,7 @@
 ping-pong し、計算結果をそのまま頂点バッファとして使って700羽を描画します。
 
 ```console
-cargo run --example boids --release
+cargo run -p boids --release
 ```
 
 終了するにはウィンドウを閉じます。

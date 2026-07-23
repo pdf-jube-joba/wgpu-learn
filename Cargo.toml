@@ -1,10 +1,19 @@
-[package]
-name = "learn-wgpu"
+[workspace]
+resolver = "3"
+members = [
+    "basic-window",
+    "boids",
+    "compute",
+    "measure-fps",
+    "nn-and-raytracing",
+]
+
+[workspace.package]
 version = "0.1.0"
 edition = "2024"
 
-[dependencies]
+[workspace.dependencies]
+bytemuck = { version = "1", features = ["derive"] }
 pollster = "0.4.0"
 wgpu = "29.0.3"
 winit = "0.30.13"
-bytemuck = { version = "1", features = ["derive"] }

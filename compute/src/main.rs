@@ -260,7 +260,7 @@ impl Config {
         let steps = parse_arg(args.next(), DEFAULT_STEPS, "steps")?;
 
         if args.next().is_some() {
-            return Err("usage: cargo run --example compute -- [width] [height] [steps]".into());
+            return Err("usage: cargo run -p compute -- [width] [height] [steps]".into());
         }
 
         if width == 0 || height == 0 {

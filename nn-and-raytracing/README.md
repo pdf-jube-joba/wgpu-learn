@@ -1,6 +1,11 @@
 3層ニューラルネットワークとレイトレーシングをやってみる。
 球の書かれた画像から距離（カメラと球の中心）を推測する。
 
+```console
+cargo run -p nn-and-raytracing --release
+cargo run -p nn-and-raytracing --bin preview --release
+```
+
 1. 空間の中に球を1つ置いてレイトレーシングをする
   - 左手系座標、上が z 
   - 3次元内で、球の半径は1に固定

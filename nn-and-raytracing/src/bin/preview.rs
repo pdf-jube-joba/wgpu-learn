@@ -161,9 +161,7 @@ async fn run() -> Result<(), Box<dyn Error>> {
 
     let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
         label: Some("Raytrace Preview Shader"),
-        source: wgpu::ShaderSource::Wgsl(
-            include_str!("NN_and_raytracing/generate_image.wgsl").into(),
-        ),
+        source: wgpu::ShaderSource::Wgsl(include_str!("../generate_image.wgsl").into()),
     });
     let generate_pipeline = create_pipeline(
         &device,

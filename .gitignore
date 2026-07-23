@@ -1,3 +1,5 @@
 /target
+/nn-and-raytracing/*.bin
+/nn-and-raytracing/raytrace_preview.bmp
 .bmp
 .bin
