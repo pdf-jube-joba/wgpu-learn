@@ -30,16 +30,6 @@ fn random_f32(seed: ptr<function, u32>) -> f32 {
     return f32(next_u32(seed) >> 8u) * (1.0 / 16777216.0);
 }
 
-fn mix_u32(value: u32) -> u32 {
-    var mixed = value;
-    mixed ^= mixed >> 16u;
-    mixed *= 0x7feb352du;
-    mixed ^= mixed >> 15u;
-    mixed *= 0x846ca68bu;
-    mixed ^= mixed >> 16u;
-    return mixed;
-}
-
 const SAMPLE_STRIDE: u32 = 3u;
 const SPHERE_RADIUS: f32 = 1.0;
 const MIN_DISTANCE: f32 = 1.0;
@@ -269,9 +259,7 @@ fn generate_samples(
         return;
     }
 
-    // Mixing the invocation index first avoids strongly correlated streams for
-    // adjacent samples while keeping each invocation independent.
-    var seed = mix_u32(constants.seed ^ sample_index);
+    var seed = constants.seed + sample_index;
 
     var center = FALLBACK_CENTER;
     var distance = length(FALLBACK_CENTER);
@@ -339,11 +327,10 @@ fn raytrace_color(id: vec3<u32>) -> f32 {
 
     let ray_count = max(constants.rays_per_pixel, 1u);
     let pixel_index = pixel_y * constants.pixel_len + pixel_x;
-    var seed = mix_u32(
-        constants.seed
-        ^ mix_u32(sample_index)
-        ^ mix_u32(pixel_index),
-    );
+    let sample_pixel_offset = sample_index
+        * constants.pixel_len
+        * constants.pixel_len;
+    var seed = constants.seed + sample_pixel_offset + pixel_index;
     var sum = 0.0;
 
     for (var ray_index = 0u; ray_index < ray_count; ray_index += 1u) {

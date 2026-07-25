@@ -19,12 +19,10 @@ pub struct RaytraceStageConstants {
     batch_size: u32,
 }
 
-impl RaytraceStageConstants {
-    pub fn for_step(config: ModelConfig, step: u32) -> Self {
+impl From<ModelConfig> for RaytraceStageConstants {
+    fn from(config: ModelConfig) -> Self {
         Self {
-            seed: config
-                .base_seed
-                .wrapping_add(step.wrapping_mul(0x9e37_79b9)),
+            seed: config.base_seed,
             pixel_len: config.pixel_len,
             rays_per_pixel: config.rays_per_pixel,
             batch_size: config.batch_size,
@@ -39,7 +37,6 @@ pub struct RaytraceBuffers<'a> {
 }
 
 pub struct RaytraceStage {
-    constants: wgpu::Buffer,
     constants_bind_group: wgpu::BindGroup,
     generate_samples_pipeline: wgpu::ComputePipeline,
     raytrace_pipeline: wgpu::ComputePipeline,
@@ -55,11 +52,12 @@ impl RaytraceStage {
         buffers: RaytraceBuffers<'_>,
         debug_images: Option<&wgpu::TextureView>,
     ) -> Self {
+        // constants
         let constants = uniform_buffer(
             device,
             "Raytrace Constants",
-            &RaytraceStageConstants::for_step(config, 0),
-            true,
+            &RaytraceStageConstants::from(config),
+            false,
         );
         let constants_layout = uniform_layout(device, "Raytrace Constants Layout");
         let constants_bind_group = uniform_bind_group(
@@ -68,6 +66,8 @@ impl RaytraceStage {
             &constants_layout,
             &constants,
         );
+
+        //
         let generate_layout = data_layout(
             device,
             "Generate Samples Data Layout",
@@ -149,7 +149,6 @@ impl RaytraceStage {
             &raytrace_bindings,
         );
         Self {
-            constants,
             constants_bind_group,
             generate_samples_pipeline: generate_samples,
             raytrace_pipeline: raytrace,
@@ -157,14 +156,6 @@ impl RaytraceStage {
             raytrace_bind_group,
             config,
         }
-    }
-
-    pub fn set_step(&self, queue: &wgpu::Queue, step: u32) {
-        queue.write_buffer(
-            &self.constants,
-            0,
-            bytemuck::bytes_of(&RaytraceStageConstants::for_step(self.config, step)),
-        );
     }
 
     pub fn encode<'a>(&'a self, pass: &mut wgpu::ComputePass<'a>) {

@@ -130,7 +130,6 @@ async fn run() -> Result<(), Box<dyn Error>> {
     );
 
     for step in 0..TRAIN_STEPS {
-        trainer.raytrace.set_step(&gpu.queue, step);
         let report = step == 0 || (step + 1) % REPORT_INTERVAL == 0;
         let mut encoder = gpu
             .device
@@ -177,7 +176,7 @@ async fn run() -> Result<(), Box<dyn Error>> {
 fn initial_weights(config: ModelConfig) -> (Vec<f32>, Vec<f32>) {
     let inputs = config.input_count() as usize;
     let hidden = config.hidden_size as usize;
-    let mut seed = config.base_seed ^ 0xa5a5_5a5a;
+    let mut seed = config.base_seed;
     let layer1_limit = (6.0 / (inputs + hidden) as f32).sqrt();
     let layer2_limit = (6.0 / (hidden + 1) as f32).sqrt();
     let mut weights1 = vec![0.0; inputs * hidden + hidden];
