@@ -3,6 +3,7 @@
 
 ```console
 cargo run -p nn-and-raytracing --release
+cargo run -p nn-and-raytracing --bin predict --release
 cargo run -p nn-and-raytracing --bin preview --release
 ```
 

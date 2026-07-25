@@ -1,10 +1,8 @@
 struct Constants {
     seed: u32,
     pixel_len: u32,
-    sample_ray: u32,
-    middle_num: u32,
+    rays_per_pixel: u32,
     batch_size: u32,
-    rate: f32,
 }
 
 @group(0) @binding(0)
@@ -320,10 +318,7 @@ fn generate_samples(
     expects[sample_index] = distance;
 }
 
-@compute @workgroup_size(8, 8, 1)
-fn raytrace(
-    @builtin(global_invocation_id) id: vec3<u32>,
-) {
+fn raytrace_color(id: vec3<u32>) -> f32 {
     let pixel_x = id.x;
     let pixel_y = id.y;
     let sample_index = id.z;
@@ -332,7 +327,7 @@ fn raytrace(
         || pixel_y >= constants.pixel_len
         || sample_index >= constants.batch_size
     ) {
-        return;
+        return -1.0;
     }
 
     let sample_offset = sample_index * SAMPLE_STRIDE;
@@ -342,7 +337,7 @@ fn raytrace(
         samples[sample_offset + 2u],
     );
 
-    let ray_count = max(constants.sample_ray, 1u);
+    let ray_count = max(constants.rays_per_pixel, 1u);
     let pixel_index = pixel_y * constants.pixel_len + pixel_x;
     var seed = mix_u32(
         constants.seed
@@ -367,10 +362,28 @@ fn raytrace(
         * constants.pixel_len;
     let color = sum / f32(ray_count);
     images[image_offset + pixel_index] = color;
+    return color;
+}
+
+@compute @workgroup_size(8, 8, 1)
+fn raytrace(
+    @builtin(global_invocation_id) id: vec3<u32>,
+) {
+    _ = raytrace_color(id);
+}
+
+@compute @workgroup_size(8, 8, 1)
+fn raytrace_preview(
+    @builtin(global_invocation_id) id: vec3<u32>,
+) {
+    let color = raytrace_color(id);
+    if (color < 0.0) {
+        return;
+    }
     textureStore(
         debug_images,
-        vec2<i32>(i32(pixel_x), i32(pixel_y)),
-        i32(sample_index),
+        vec2<i32>(i32(id.x), i32(id.y)),
+        i32(id.z),
         vec4<f32>(color, color, color, 1.0),
     );
 }

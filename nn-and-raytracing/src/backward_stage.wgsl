@@ -1,8 +1,6 @@
 struct Constants {
-    seed: u32,
     pixel_len: u32,
-    sample_ray: u32,
-    middle_num: u32,
+    hidden_size: u32,
     batch_size: u32,
     rate: f32,
 }
@@ -17,7 +15,7 @@ var<storage, read> images: array<f32>;
 var<storage, read> expects: array<f32>;
 
 @group(1) @binding(2)
-var<storage, read> middle: array<f32>;
+var<storage, read> hidden: array<f32>;
 
 @group(1) @binding(3)
 var<storage, read> predicts: array<f32>;
@@ -52,14 +50,14 @@ fn backward_hidden(
     let hidden_index = id.x;
     let sample_index = id.y;
     if (
-        hidden_index >= constants.middle_num
+        hidden_index >= constants.hidden_size
         || sample_index >= constants.batch_size
     ) {
         return;
     }
 
-    let index = sample_index * constants.middle_num + hidden_index;
-    let activation = middle[index];
+    let index = sample_index * constants.hidden_size + hidden_index;
+    let activation = hidden[index];
     hidden_delta[index] = output_delta(sample_index)
         * weights2[hidden_index]
         * (1.0 - activation * activation);
@@ -71,9 +69,9 @@ fn update_weights(
 ) {
     let parameter_index = id.x;
     let inputs = input_count();
-    let layer1_weight_count = constants.middle_num * inputs;
-    let layer1_parameter_count = layer1_weight_count + constants.middle_num;
-    let layer2_parameter_count = constants.middle_num + 1u;
+    let layer1_weight_count = constants.hidden_size * inputs;
+    let layer1_parameter_count = layer1_weight_count + constants.hidden_size;
+    let layer2_parameter_count = constants.hidden_size + 1u;
     if (parameter_index >= layer1_parameter_count + layer2_parameter_count) {
         return;
     }
@@ -88,7 +86,7 @@ fn update_weights(
             sample_index += 1u
         ) {
             gradient += hidden_delta[
-                sample_index * constants.middle_num + hidden_index
+                sample_index * constants.hidden_size + hidden_index
             ] * images[sample_index * inputs + input_index];
         }
         weights1[parameter_index] -= constants.rate * gradient;
@@ -103,7 +101,7 @@ fn update_weights(
             sample_index += 1u
         ) {
             gradient += hidden_delta[
-                sample_index * constants.middle_num + hidden_index
+                sample_index * constants.hidden_size + hidden_index
             ];
         }
         weights1[parameter_index] -= constants.rate * gradient;
@@ -111,14 +109,14 @@ fn update_weights(
     }
 
     let layer2_index = parameter_index - layer1_parameter_count;
-    if (layer2_index < constants.middle_num) {
+    if (layer2_index < constants.hidden_size) {
         for (
             var sample_index = 0u;
             sample_index < constants.batch_size;
             sample_index += 1u
         ) {
             gradient += output_delta(sample_index)
-                * middle[sample_index * constants.middle_num + layer2_index];
+                * hidden[sample_index * constants.hidden_size + layer2_index];
         }
         weights2[layer2_index] -= constants.rate * gradient;
         return;
@@ -131,7 +129,7 @@ fn update_weights(
     ) {
         gradient += output_delta(sample_index);
     }
-    weights2[constants.middle_num] -= constants.rate * gradient;
+    weights2[constants.hidden_size] -= constants.rate * gradient;
 }
 
 @compute @workgroup_size(1, 1, 1)
