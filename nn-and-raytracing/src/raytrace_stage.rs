@@ -67,7 +67,7 @@ impl RaytraceStage {
             &constants,
         );
 
-        //
+        // generate
         let generate_layout = data_layout(
             device,
             "Generate Samples Data Layout",
@@ -99,11 +99,13 @@ impl RaytraceStage {
             label: Some("Raytrace Data Layout"),
             entries: &raytrace_entries,
         });
+
+        // pipeline
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("Generate Image Shader"),
             source: wgpu::ShaderSource::Wgsl(include_str!("raytrace_stage.wgsl").into()),
         });
-        let generate_samples = pipeline(
+        let generate_samples_pipeline = pipeline(
             device,
             "Generate Samples Pipeline",
             &shader,
@@ -111,7 +113,7 @@ impl RaytraceStage {
             &constants_layout,
             &generate_layout,
         );
-        let raytrace = pipeline(
+        let raytrace_pipeline = pipeline(
             device,
             "Raytrace Pipeline",
             &shader,
@@ -123,6 +125,8 @@ impl RaytraceStage {
             &constants_layout,
             &raytrace_layout,
         );
+
+        // bindgroup
         let generate_samples_bind_group = bind_group(
             device,
             "Generate Samples Bind Group",
@@ -150,8 +154,8 @@ impl RaytraceStage {
         );
         Self {
             constants_bind_group,
-            generate_samples_pipeline: generate_samples,
-            raytrace_pipeline: raytrace,
+            generate_samples_pipeline,
+            raytrace_pipeline,
             generate_samples_bind_group,
             raytrace_bind_group,
             config,
@@ -173,8 +177,8 @@ impl RaytraceStage {
             &self.raytrace_bind_group,
             (
                 self.config.pixel_len.div_ceil(8),
-                self.config.pixel_len.div_ceil(8),
-                self.config.batch_size,
+                (self.config.pixel_len * self.config.batch_size).div_ceil(8),
+                1,
             ),
         );
     }

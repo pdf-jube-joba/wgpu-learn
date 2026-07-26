@@ -28,7 +28,7 @@ fn input_count() -> u32 {
     return constants.pixel_len * constants.pixel_len;
 }
 
-@compute @workgroup_size(8, 8, 1)
+@compute @workgroup_size(8, 8)
 fn forward_hidden(
     @builtin(global_invocation_id) id: vec3<u32>,
 ) {
@@ -54,7 +54,7 @@ fn forward_hidden(
     hidden[sample_index * constants.hidden_size + hidden_index] = tanh(sum);
 }
 
-@compute @workgroup_size(64, 1, 1)
+@compute @workgroup_size(64)
 fn forward_output(
     @builtin(global_invocation_id) id: vec3<u32>,
 ) {

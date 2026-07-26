@@ -308,16 +308,16 @@ fn generate_samples(
 
 fn raytrace_color(id: vec3<u32>) -> f32 {
     let pixel_x = id.x;
-    let pixel_y = id.y;
-    let sample_index = id.z;
+    let combined_y = id.y;
     if (
         pixel_x >= constants.pixel_len
-        || pixel_y >= constants.pixel_len
-        || sample_index >= constants.batch_size
+        || combined_y >= constants.pixel_len * constants.batch_size
     ) {
         return -1.0;
     }
 
+    let pixel_y = combined_y % constants.pixel_len;
+    let sample_index = combined_y / constants.pixel_len;
     let sample_offset = sample_index * SAMPLE_STRIDE;
     let sphere_center = vec3<f32>(
         samples[sample_offset + 0u],
@@ -352,14 +352,14 @@ fn raytrace_color(id: vec3<u32>) -> f32 {
     return color;
 }
 
-@compute @workgroup_size(8, 8, 1)
+@compute @workgroup_size(8, 8)
 fn raytrace(
     @builtin(global_invocation_id) id: vec3<u32>,
 ) {
     _ = raytrace_color(id);
 }
 
-@compute @workgroup_size(8, 8, 1)
+@compute @workgroup_size(8, 8)
 fn raytrace_preview(
     @builtin(global_invocation_id) id: vec3<u32>,
 ) {
@@ -367,10 +367,12 @@ fn raytrace_preview(
     if (color < 0.0) {
         return;
     }
+    let pixel_y = id.y % constants.pixel_len;
+    let sample_index = id.y / constants.pixel_len;
     textureStore(
         debug_images,
-        vec2<i32>(i32(id.x), i32(id.y)),
-        i32(id.z),
+        vec2<i32>(i32(id.x), i32(pixel_y)),
+        i32(sample_index),
         vec4<f32>(color, color, color, 1.0),
     );
 }

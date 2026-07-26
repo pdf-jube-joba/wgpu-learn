@@ -43,7 +43,7 @@ fn output_delta(sample_index: u32) -> f32 {
         / f32(constants.batch_size);
 }
 
-@compute @workgroup_size(8, 8, 1)
+@compute @workgroup_size(8, 8)
 fn backward_hidden(
     @builtin(global_invocation_id) id: vec3<u32>,
 ) {
@@ -63,7 +63,7 @@ fn backward_hidden(
         * (1.0 - activation * activation);
 }
 
-@compute @workgroup_size(64, 1, 1)
+@compute @workgroup_size(64)
 fn update_weights(
     @builtin(global_invocation_id) id: vec3<u32>,
 ) {
@@ -132,7 +132,7 @@ fn update_weights(
     weights2[constants.hidden_size] -= constants.rate * gradient;
 }
 
-@compute @workgroup_size(1, 1, 1)
+@compute @workgroup_size(1)
 fn compute_loss() {
     var sum = 0.0;
     for (
