@@ -818,6 +818,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "mlp-gpu"
+version = "0.1.0"
+dependencies = [
+ "bytemuck",
+ "wgpu",
+ "wgpu-compute-utils",
+]
+
+[[package]]
 name = "naga"
 version = "29.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -878,8 +887,10 @@ name = "nn-and-raytracing"
 version = "0.1.0"
 dependencies = [
  "bytemuck",
+ "mlp-gpu",
  "pollster",
- "wgpu",
+ "raytrace-gpu",
+ "wgpu-compute-utils",
 ]
 
 [[package]]
@@ -1385,6 +1396,16 @@ dependencies = [
  "objc2-core-foundation",
  "objc2-foundation 0.3.2",
  "objc2-quartz-core 0.3.2",
+]
+
+[[package]]
+name = "raytrace-gpu"
+version = "0.1.0"
+dependencies = [
+ "bytemuck",
+ "pollster",
+ "wgpu",
+ "wgpu-compute-utils",
 ]
 
 [[package]]
@@ -2027,6 +2048,14 @@ dependencies = [
  "wgpu-core",
  "wgpu-hal",
  "wgpu-types",
+]
+
+[[package]]
+name = "wgpu-compute-utils"
+version = "0.1.0"
+dependencies = [
+ "bytemuck",
+ "wgpu",
 ]
 
 [[package]]

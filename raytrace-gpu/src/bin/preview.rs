@@ -1,17 +1,13 @@
 use std::{error::Error, fs, path::Path};
 
-use nn_and_raytracing::{
-    GpuContext, ModelConfig, RaytraceBuffers, RaytraceStage, map_buffer, readback_buffer,
-    storage_buffer,
-};
+use raytrace_gpu::{RaytraceBuffers, RaytraceConfig, RaytraceStage};
+use wgpu_compute_utils::{GpuContext, map_buffer, readback_buffer, storage_buffer};
 
-const CONFIG: ModelConfig = ModelConfig {
+const CONFIG: RaytraceConfig = RaytraceConfig {
     base_seed: 0x8f31_7a25,
     pixel_len: 64,
     rays_per_pixel: 4,
-    hidden_size: 2048,
     batch_size: 16,
-    learning_rate: 0.001,
 };
 const OUTPUT_FILE: &str = "raytrace_preview.ppm";
 

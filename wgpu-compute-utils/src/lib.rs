@@ -173,6 +173,15 @@ pub fn storage_buffer(
     })
 }
 
+pub fn upload_storage_buffer(device: &wgpu::Device, label: &str, size: u64) -> wgpu::Buffer {
+    device.create_buffer(&wgpu::BufferDescriptor {
+        label: Some(label),
+        size,
+        usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
+        mapped_at_creation: false,
+    })
+}
+
 pub fn initialized_storage_buffer(
     device: &wgpu::Device,
     label: &str,

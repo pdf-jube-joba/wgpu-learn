@@ -1,0 +1,9 @@
+[package]
+name = "mlp-gpu"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+bytemuck.workspace = true
+wgpu.workspace = true
+wgpu-compute-utils = { path = "../wgpu-compute-utils" }

@@ -1,5 +1,6 @@
-use crate::{
-    ModelConfig, bind_group, buffer_entry, buffer_layout_entry, data_layout, dispatch, pipeline,
+use crate::RaytraceConfig;
+use wgpu_compute_utils::{
+    bind_group, buffer_entry, buffer_layout_entry, data_layout, dispatch, pipeline,
     uniform_bind_group, uniform_buffer, uniform_layout,
 };
 
@@ -19,8 +20,8 @@ pub struct RaytraceStageConstants {
     batch_size: u32,
 }
 
-impl From<ModelConfig> for RaytraceStageConstants {
-    fn from(config: ModelConfig) -> Self {
+impl From<RaytraceConfig> for RaytraceStageConstants {
+    fn from(config: RaytraceConfig) -> Self {
         Self {
             seed: config.base_seed,
             pixel_len: config.pixel_len,
@@ -43,13 +44,13 @@ pub struct RaytraceStage {
     raytrace_pipeline: wgpu::ComputePipeline,
     generate_samples_bind_group: wgpu::BindGroup,
     raytrace_bind_group: wgpu::BindGroup,
-    config: ModelConfig,
+    config: RaytraceConfig,
 }
 
 impl RaytraceStage {
     pub fn new(
         device: &wgpu::Device,
-        config: ModelConfig,
+        config: RaytraceConfig,
         buffers: RaytraceBuffers<'_>,
         debug_images: Option<&wgpu::TextureView>,
     ) -> Self {

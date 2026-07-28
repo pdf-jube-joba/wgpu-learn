@@ -1,12 +1,10 @@
 [package]
-name = "nn-and-raytracing"
+name = "raytrace-gpu"
 version.workspace = true
 edition.workspace = true
-default-run = "nn-and-raytracing"
 
 [dependencies]
 bytemuck.workspace = true
-mlp-gpu = { path = "../mlp-gpu" }
 pollster.workspace = true
-raytrace-gpu = { path = "../raytrace-gpu" }
+wgpu.workspace = true
 wgpu-compute-utils = { path = "../wgpu-compute-utils" }

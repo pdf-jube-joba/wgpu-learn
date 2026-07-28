@@ -1,0 +1,8 @@
+[package]
+name = "wgpu-compute-utils"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+bytemuck.workspace = true
+wgpu.workspace = true

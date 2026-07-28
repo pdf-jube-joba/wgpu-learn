@@ -1,11 +1,20 @@
-3層ニューラルネットワークとレイトレーシングをやってみる。
+4層ニューラルネットワーク（隠れ層2つ）とレイトレーシングをやってみる。
 球の書かれた画像から距離（カメラと球の中心）を推測する。
 
 ```console
 cargo run -p nn-and-raytracing --release
 cargo run -p nn-and-raytracing --bin predict --release
-cargo run -p nn-and-raytracing --bin preview --release
+cargo run -p raytrace-gpu --bin preview --release
 ```
+
+crate は次の単位に分ける。
+
+- `raytrace-gpu`: レイトレーシングで `RaytraceBatch { inputs, expects }` を生成する
+- `mlp-gpu`: `MiniBatch` を受け取ってミニバッチ学習・推論する
+- `wgpu-compute-utils`: compute shader 用の共通 GPU helper
+- `nn-and-raytracing`: 上の crate をつなぐ実行用 crate
+
+`raytrace-gpu` と `mlp-gpu` は同じ encoder に pipeline を入れない。crate 間の受け渡しは `Vec<f32>` の CPU バッチ境界にする。
 
 1. 空間の中に球を1つ置いてレイトレーシングをする
   - 左手系座標、上が z 
@@ -21,7 +30,7 @@ cargo run -p nn-and-raytracing --bin preview --release
   - N*N の白黒ピクセル画像でレイトレーシングをやる
     - 各ピクセルは f32 一つで白の強さを表し、0から1の範囲とする
 2. 画像から距離を当てるのをニューラルネットワークで訓練する
-  - 入力層、隠れ層、出力層
+  - 入力層、隠れ層2つ、出力層
     - 隠れ層の幅は適当な定数に
     - 隠れ層の活性化関数は tanh を使う
     - 出力層は活性化関数無しの sum にして、正規化はなしのまま f32 とする。

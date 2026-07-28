@@ -5,7 +5,10 @@ members = [
     "boids",
     "compute",
     "measure-fps",
+    "mlp-gpu",
     "nn-and-raytracing",
+    "raytrace-gpu",
+    "wgpu-compute-utils",
 ]
 
 [workspace.package]
