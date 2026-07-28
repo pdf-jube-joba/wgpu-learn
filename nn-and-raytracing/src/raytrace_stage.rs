@@ -37,6 +37,7 @@ pub struct RaytraceBuffers<'a> {
 }
 
 pub struct RaytraceStage {
+    constants: wgpu::Buffer,
     constants_bind_group: wgpu::BindGroup,
     generate_samples_pipeline: wgpu::ComputePipeline,
     raytrace_pipeline: wgpu::ComputePipeline,
@@ -57,7 +58,7 @@ impl RaytraceStage {
             device,
             "Raytrace Constants",
             &RaytraceStageConstants::from(config),
-            false,
+            true,
         );
         let constants_layout = uniform_layout(device, "Raytrace Constants Layout");
         let constants_bind_group = uniform_bind_group(
@@ -153,6 +154,7 @@ impl RaytraceStage {
             &raytrace_bindings,
         );
         Self {
+            constants,
             constants_bind_group,
             generate_samples_pipeline,
             raytrace_pipeline,
@@ -160,6 +162,12 @@ impl RaytraceStage {
             raytrace_bind_group,
             config,
         }
+    }
+
+    pub fn set_seed(&self, queue: &wgpu::Queue, seed: u32) {
+        let mut constants = RaytraceStageConstants::from(self.config);
+        constants.seed = seed;
+        queue.write_buffer(&self.constants, 0, bytemuck::bytes_of(&constants));
     }
 
     pub fn encode<'a>(&'a self, pass: &mut wgpu::ComputePass<'a>) {

@@ -10,12 +10,12 @@ const CONFIG: ModelConfig = ModelConfig {
     base_seed: 0x6ac6_8e9b,
     pixel_len: 32,
     rays_per_pixel: 1,
-    hidden_size: 64,
+    hidden_size: 2048,
     batch_size: 32,
     learning_rate: 0.001,
 };
-const TRAIN_STEPS: u32 = 2_000;
-const REPORT_INTERVAL: u32 = 200;
+const TRAIN_STEPS: u32 = 100_000;
+const REPORT_INTERVAL: u32 = 500;
 
 struct TrainingBuffers {
     samples: wgpu::Buffer,
@@ -130,6 +130,10 @@ async fn run() -> Result<(), Box<dyn Error>> {
     );
 
     for step in 0..TRAIN_STEPS {
+        let seed = CONFIG
+            .base_seed
+            .wrapping_add(step.wrapping_mul(0x9e37_79b9));
+        trainer.raytrace.set_seed(&gpu.queue, seed);
         let report = step == 0 || (step + 1) % REPORT_INTERVAL == 0;
         let mut encoder = gpu
             .device

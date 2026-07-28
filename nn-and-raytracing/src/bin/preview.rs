@@ -9,7 +9,7 @@ const CONFIG: ModelConfig = ModelConfig {
     base_seed: 0x8f31_7a25,
     pixel_len: 64,
     rays_per_pixel: 4,
-    hidden_size: 64,
+    hidden_size: 2048,
     batch_size: 16,
     learning_rate: 0.001,
 };
